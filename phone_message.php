@@ -1,107 +1,135 @@
 <?php
+/////////header functions
+//header("Access-Control-Allow-Methods: POST");
+//header("Access-Control-Max-Age: 3600");
+//header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+///////////////////////////
+
 require_once "db.php";///////database connection
 require_once "functions.php";///////all functions
 require_once 'Twilio/autoload.php';/////////load Twilio
 
 use Twilio\Rest\Client;
 
-if ($_SERVER["REQUEST_METHOD"] == "GET") {
-  $accesvia = "GET";
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  $accesvia = "POST";
 }else{
   $accesvia = "";
 }
-  //$accesvia==$_SERVER["REQUEST_METHOD"];///////how its being accessed
+//$accesvia==$_SERVER["REQUEST_METHOD"];///////how its being accessed
 
-  switch($accesvia)
+switch($accesvia)
+  
   {
-    case 'GET':
+    case 'POST':
 
-      /////GET email
-      if(!empty($_GET))/////////make sure GET query holds value
-      {
-       ///////////////////////filter data
-        $id = filter($_GET['id']);
-        $key = filter($_GET['key']);
-        $phone = '+'.$_GET['phone'];
-        $messagen = $_GET['message'];
-       //////////////////////////////
-
-        ////////////Check Unit Balance
-        ///GET balance from data base////////////////
-          $stmt = $con->prepare("SELECT * FROM user WHERE sid = ? and api_key = ?");
-          $stmt->bind_param("ss", $id, $key);
-          $stmt->execute();
-          $result = $stmt->GET_result()->fetch_all(MYSQLI_ASSOC);
-          if(empty($result)) {
-            $response=array(
-                'status' => 419,
-                'status_message' =>'You dont have an account with us.'
-              );
+          ///////////DECLARE VARIABLES////////
+          if (isset($_POST['sid'])) {
+           $id = filter($_POST['sid']);
           }
-          $stmt->close();
-          $email = $result[0]['email'];
-          $balance = $result[0]['unit'];
-          $user_id = $result[0]['id'];
-          //////////////////////
 
-          if ($balance<1) {
-            $response=array(
-                'status' => 420,
-                'status_message' =>'You dont have any units in your account.'
-              );
-          }else{
+          if (isset($_POST['authToken'])) {
+           $auth = filter($_POST['authToken']);
+          }
 
-      $newmessage = filter($messagen);////////GET message from the string
-      $to = validate_phone($phone);/////phone forward message to
- 
-      $twilio = new Client($sid, $auth);
+          if (isset($_POST['phone'])) {
+          $phone = '+'.$_POST['phone'];
+          }
 
-      $message = $twilio->messages
-                  ->create($phone, // to
-                           [
-                               "body" => $newmessage,
-                               "from" => $TwilioPhone
-                           ]
-                  );
-      }
-                  ////////////response coding
-      if(!empty($message->sid)){
+          if (isset($_POST['message'])) {
+          $messagen = $_POST['message'];
+          }
+          
+          
+          
+          ////////////////////////////////////
 
-        /////////update unit balance
-          $stmt = $con->prepare("UPDATE user SET unit = unit-1 WHERE sid = ? and api_key = ?");
-          $stmt->bind_param("ss", $id, $key);
-          $stmt->execute();
-          $stmt->close();
-          //////////////////
+          
+
+          /////////////////CONTINUE VARIABLE DECLARE/////////////
+              $stmt = $con->prepare("SELECT * FROM user WHERE AccountID = ? and AuthToken = ?");
+              $stmt->bind_param("ss", $id, $auth);
+              $stmt->execute();
+              $result = $stmt->GET_result()->fetch_all(MYSQLI_ASSOC);
+              $stmt->close();
+
+              $email = $result[0]['email'];
+              $balance = $result[0]['unit'];
+              $user_id = $result[0]['id'];
+              $response_method = $result[0]['response_method'];
+          //////////////////////////////////////////////////////
+
+              ///////////ERROR CHECKER//////////////////
+          $response=checkFraud($id, $auth, $messagen,$phone, $balance);
+          ///////////////////////////////////////////
+
+      if(empty($response))/////////make sure POST query is good to go
+        {     
+              ////////POST message from the string
+              $newmessage = filter($messagen);
+              ////////////////////////////////////
+
+              /////phone forward message to///////////
+              $to = validate_phone($phone);
+              ////////////////////////////////////////
+         
+              /////////TWILIO INSTANCE//////////////////////
+              $twilio = new Client($Adminsid, $authAdmin);
+              //////////////////////////////////////////////
+
+              ///////////MESSAGE SEND///////////////////////
+              $message = $twilio->messages
+                                          ->create('+'.$phone, // to
+                                                     [
+                                                         "body" => $newmessage,
+                                                         "from" => $TwilioPhone
+                                                      ]
+                                                  );
+              ////////////////////////////////////////////////
 
 
-          /////////update history
-            $stmt = $con->prepare("INSERT INTO history (user_id, to_, message) VALUES (?,?,?)");
-            $stmt->bind_param("sss", $user_id, $phone, $newmessage);
-            $stmt->execute();
-            $stmt->close();
-          //////////////////
+              ////////////response coding///////////////////////////////
+              if(!empty($message->sid))
+                {
 
-        $response=array(
-                'status' => 1,
-                'status_message' =>'Message Sent Successfully.'
-              );
+                  /////////update unit balance///////////////////////////
+                  $stmt = $con->prepare("UPDATE user SET unit = unit-1 WHERE AccountID = ? and AuthToken = ?");
+                  $stmt->bind_param("ss", $id, $auth);
+                  $stmt->execute();
+                  $stmt->close();
+                  /////////////////////////////////////////////////////
+
+
+                  /////////update history//////////////////////////////////
+                    $status = 'sent';
+
+                    $stmt = $con->prepare("INSERT INTO history (user_id, to_, message, status) VALUES (?,?,?,?)");
+                    $stmt->bind_param("ssss", $user_id, $phone, $newmessage,$status);
+                    $stmt->execute();
+                    $stmt->close();
+                  /////////////////////////////////////////////////////
+
+                  $response=array(
+                          'status' => 1,
+                          'status_message' =>'Message Sent Successfully.'
+                        );
+                }
+              else
+                {
+                      $response=array(
+                        'status' => 0,
+                        'status_message' =>'Message sending Failed.'
+                      );
+                }
+
             }
-            else
-            {
-              $response=array(
-                'status' => 0,
-                'status_message' =>'Message sending Failed.'
-              );
-            }
-  header('Content-Type: application/json');
-  echo json_encode($response);
 
-}
+            ///////////RESPONSE//////////////
+           response($response);
       
+
       break;
-    
-    default:
+default:
       // Invalid Request Method
       header("HTTP/1.0 405 Method Not Allowed");
       break;

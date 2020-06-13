@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jun 10, 2020 at 12:39 AM
+-- Generation Time: Jun 13, 2020 at 12:59 AM
 -- Server version: 5.7.26
 -- PHP Version: 7.3.5
 
@@ -57,17 +57,22 @@ CREATE TABLE IF NOT EXISTS `history` (
   `user_id` int(11) NOT NULL,
   `to_` varchar(50) NOT NULL,
   `message` varchar(255) NOT NULL,
+  `status` varchar(11) NOT NULL,
   `time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `history`
 --
 
-INSERT INTO `history` (`id`, `user_id`, `to_`, `message`, `time`) VALUES
-(1, 0, '2348153193630', 'TEXTING', '2020-06-10 00:45:38'),
-(2, 1, '+ 2348153193630', 'TEXTING', '2020-06-10 01:02:02');
+INSERT INTO `history` (`id`, `user_id`, `to_`, `message`, `status`, `time`) VALUES
+(1, 0, '2348153193630', 'TEXTING', '', '2020-06-10 00:45:38'),
+(2, 1, '+ 2348153193630', 'TEXTING', '', '2020-06-10 01:02:02'),
+(3, 1, '+ 2348153193630', 'nownow', 'sent', '2020-06-12 18:20:35'),
+(4, 1, '++2348153193630', 'Be patient and work', 'sent', '2020-06-12 21:40:37'),
+(5, 1, '++2348153193630', 'Be patient and work', 'sent', '2020-06-12 22:57:37'),
+(6, 1, '++2348153193630', 'Be patient and work', 'sent', '2020-06-12 22:59:20');
 
 -- --------------------------------------------------------
 
@@ -79,8 +84,9 @@ DROP TABLE IF EXISTS `user`;
 CREATE TABLE IF NOT EXISTS `user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `email` varchar(50) NOT NULL,
-  `sid` varchar(255) NOT NULL,
-  `api_key` varchar(255) NOT NULL,
+  `AccountID` varchar(255) NOT NULL,
+  `AuthToken` varchar(255) NOT NULL,
+  `response_method` int(1) NOT NULL DEFAULT '1',
   `unit` int(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
@@ -89,8 +95,8 @@ CREATE TABLE IF NOT EXISTS `user` (
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`id`, `email`, `sid`, `api_key`, `unit`) VALUES
-(1, 'xyz@gmail.com', '01b307acba4f54f55aafc33bb06bbbf6ca803e9a', 'fb295e43abf0f8dfc3e4d4abc00d0a4fd34046c3', 997);
+INSERT INTO `user` (`id`, `email`, `AccountID`, `AuthToken`, `response_method`, `unit`) VALUES
+(1, 'xyz@gmail.com', '01b307acba4f54f55aafc33bb06bbbf6ca803e9a', 'fb295e43abf0f8dfc3e4d4abc00d0a4fd34046c3', 1, 992);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
