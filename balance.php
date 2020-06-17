@@ -7,6 +7,19 @@ require_once "functions.php";///////all functions
       if($_SERVER['REQUEST_METHOD']=="POST")/////////make sure POST query holds value
       {
         
+          ////////////adding a test to balance ///////////////  
+          if (isset($_POST['sid'])=='demosid' && isset($_POST['authToken'])=='demoauth') {
+            
+              $bal = mt_rand(111, 999);
+
+            $response = array(
+                                        'email'=>'demo@xyz.com', 
+                                        'balance'=>$bal
+                                  );
+          }
+            /////////////////////////////////////////////////////
+
+
           ///////////////////////filter data
           if (isset($_POST['sid'])) {
             $id=filter($_POST["sid"]);

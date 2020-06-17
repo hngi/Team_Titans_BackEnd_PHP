@@ -3,8 +3,25 @@ require_once "db.php";///////database connection
 require_once "functions.php";///////all functions
 
 if ($_SERVER['REQUEST_METHOD']=='POST') {
-	
-	if (isset($_POST['sid'])) {
+
+////////////adding a test to reset ///////////////	
+	if (isset($_POST['sid'])=='demosid' && isset($_POST['authToken'])=='demoauth') {
+       
+        if (!isset($_POST['response_method'])) {
+              $response=array(
+                                    'error' => 207,
+                                    "error_message" =>"Response method cannot be empty"
+                                  );
+          }else{
+                $response=array(
+                                  'status' => 3,
+                                  'status_message' =>'Request method updated successfully'
+                  );
+  }
+}
+/////////////////////////////////////////////////////
+
+  if (isset($_POST['sid'])) {
 		$id=filter($_POST["sid"]);
 	}
 	if (isset($_POST['authToken'])) {
@@ -13,7 +30,9 @@ if ($_SERVER['REQUEST_METHOD']=='POST') {
 	if (isset($_POST['response_method'])) {
 		$response_met=$_POST["response_method"];
 	}
-	
+
+
+  
 		
 		
 		$min = 1;

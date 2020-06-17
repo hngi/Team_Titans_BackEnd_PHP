@@ -16,6 +16,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }else{
   $accesvia = "";
 }
+
+////////////adding a test to phone_message ///////////////  
+          if (isset($_POST['sid'])=='demosid' && isset($_POST['authToken'])=='demoauth') {
+
+              if (!isset($_POST['phone'])) {
+              $response=array(
+                                    'error' => 206,
+                                    "error_message" =>"No phone number provided"
+                                  ); 
+              }elseif (!isset($_POST['message'])) {
+              $response=array(
+                                    'error' => 203,
+                                    "error_message" =>"No test in request. check to confirm"
+                                  );
+              }else{
+                  $response=array(
+                          'status' => 1,
+                          'status_message' =>'Message Sent Successfully.'
+                        );
+          }
+        }
+/////////////////////////////////////////////////////
+
+
+
 //$accesvia==$_SERVER["REQUEST_METHOD"];///////how its being accessed
 
 switch($accesvia)

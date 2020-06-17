@@ -24,6 +24,8 @@
                         <p class="text-center"><span class="by">by</span> <a href="#">#TEAM_TITAN</a><span class="date">JUNE 8th, 2020</span></p><img class="img-fluid" src="assets/img/desk.jpg"></div>
                     <div class="text">
                         <p>SMS Notifier micro-service. For registration, kindly contact the admin at backend.teamlead@teamtitans.hngi7</p>
+                        <h2>Demo details</h2>
+                        <p>sid = demosid and authToken = demoauth</p>
                         <h2>Configure Response format</h2>
                         <p>Below is a sample PHP code using POST</p>
                         <p style="font-family: 'Cutive Mono', monospace;background-color: #f0f0f0;padding-left: 10px;padding-right: 10px;padding-top: 2px;padding-bottom: 2px;white-space: nowrap;overflow-x: scroll;">//extract data from the post<br><br>extract($_POST);<br><br>//set POST variables<br><br>$url = 'http://[WEBSITE URL]/v1/configure';<br><br>$query=array(<br><br> 'sid' =&gt;'',<br><br> 'authToken' =&gt; '',<br><br> 'response_method'
